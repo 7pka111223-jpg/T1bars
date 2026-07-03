@@ -1,0 +1,13 @@
+{
+  "extraKnownMarketplaces": {
+    "open-design": {
+      "source": {
+        "source": "github",
+        "repo": "nexu-io/open-design"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "open-design@open-design": true
+  }
+}
