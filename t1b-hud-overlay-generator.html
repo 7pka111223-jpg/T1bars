@@ -257,6 +257,9 @@
         <div class="swatch" style="background:#cc8800" data-c="#cc8800" title="Amber"></div>
         <div class="swatch" style="background:#8833cc" data-c="#8833cc" title="Purple"></div>
       </div>
+      <div class="check"><input type="checkbox" id="neon" checked><span>Neon text glow</span></div>
+      <label class="f">Glow strength — <span id="neonGlowOut">100</span>%</label>
+      <input type="range" id="neonGlow" min="0" max="200" value="100">
       <label class="f">Glitch intensity</label>
       <input type="range" id="glitch" min="0" max="100" value="45">
       <button class="btn ghost" id="reglitch" type="button">↻ RE-GLITCH</button>
@@ -286,6 +289,8 @@ const DEFAULTS = {
   showHr: true,
   showPanels: true,
   showFooter: true,
+  neon: true,
+  neonGlow: 100,
   program: 'STRONG BASE',
   activeIcon: 2,
   p1Label: 'CURRENT SET',
@@ -355,6 +360,20 @@ function palette() {
 const cv = document.getElementById('cv');
 const ctx = cv.getContext('2d');
 
+/* ---- global neon control: every shadowBlur is scaled by NEON ----
+   NEON = 0 turns the glow off entirely; 1 = normal; up to 2 = extra bloom.
+   Done via a prototype hook so we don't touch the dozens of shadowBlur lines. */
+let NEON = 1;
+(function () {
+  const d = Object.getOwnPropertyDescriptor(CanvasRenderingContext2D.prototype, 'shadowBlur');
+  if (!d || !d.set) return;
+  Object.defineProperty(CanvasRenderingContext2D.prototype, 'shadowBlur', {
+    configurable: true,
+    get() { return d.get.call(this); },
+    set(v) { d.set.call(this, (v || 0) * NEON); },
+  });
+})();
+
 function spacedText(c, text, x, y, spacing, align) {
   const chars = [...String(text)];
   const widths = chars.map(ch => c.measureText(ch).width);
@@ -389,6 +408,7 @@ function render() {
   const W = 1080, H = parseInt(S.format, 10);
   if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
   const P = palette();
+  NEON = S.neon ? S.neonGlow / 100 : 0;
   ctx.clearRect(0, 0, W, H);
 
   drawCenter(W, H, P);
@@ -797,6 +817,9 @@ function syncControlsFromState() {
   el('pctOut').textContent = S.pct;
   el('accent').value = S.accent;
   el('glitch').value = S.glitch;
+  el('neon').checked = S.neon;
+  el('neonGlow').value = S.neonGlow;
+  el('neonGlowOut').textContent = S.neonGlow;
   document.querySelectorAll('#iconSeg button').forEach(b =>
     b.classList.toggle('on', +b.dataset.i === S.activeIcon));
 }
@@ -812,6 +835,8 @@ el('showFooter').addEventListener('change', e => { S.showFooter = e.target.check
 el('pct').addEventListener('input', e => { S.pct = +e.target.value; el('pctOut').textContent = S.pct; update(); });
 el('accent').addEventListener('input', e => { S.accent = e.target.value; update(); });
 el('glitch').addEventListener('input', e => { S.glitch = +e.target.value; update(); });
+el('neon').addEventListener('change', e => { S.neon = e.target.checked; update(); });
+el('neonGlow').addEventListener('input', e => { S.neonGlow = +e.target.value; el('neonGlowOut').textContent = S.neonGlow; update(); });
 document.querySelectorAll('.swatch').forEach(sw =>
   sw.addEventListener('click', () => { S.accent = sw.dataset.c; el('accent').value = sw.dataset.c; update(); }));
 document.querySelectorAll('#iconSeg button').forEach(b =>

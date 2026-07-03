@@ -352,6 +352,9 @@
         <div class="swatch" style="background:#cc8800" data-c="#cc8800" title="Amber"></div>
         <div class="swatch" style="background:#8833cc" data-c="#8833cc" title="Purple"></div>
       </div>
+      <div class="check"><input type="checkbox" id="neon" checked><span>Neon text glow</span></div>
+      <label class="f">Glow strength — <span id="neonGlowOut">100</span>%</label>
+      <input type="range" id="neonGlow" min="0" max="200" value="100">
       <label class="f">Glitch intensity</label>
       <input type="range" id="glitch" min="0" max="100" value="45">
       <button class="btn ghost" id="reglitch" type="button">↻ RE-GLITCH</button>
@@ -385,6 +388,8 @@ const DEFAULTS = {
   centerFill: 88,
   accent: '#cc0000',
   glitch: 45,
+  neon: true,
+  neonGlow: 100,
   headerLeft: 'JULY REPORT',
   hdrLabel: 'PERIOD',
   hdrValue: 'JULY 2026',
@@ -483,6 +488,20 @@ function palette() {
 
 const cv = document.getElementById('cv');
 const ctx = cv.getContext('2d');
+
+/* ---- global neon control: every shadowBlur is scaled by NEON ----
+   NEON = 0 turns the glow off entirely; 1 = normal; up to 2 = extra bloom.
+   Done via a prototype hook so we don't touch the dozens of shadowBlur lines. */
+let NEON = 1;
+(function () {
+  const d = Object.getOwnPropertyDescriptor(CanvasRenderingContext2D.prototype, 'shadowBlur');
+  if (!d || !d.set) return;
+  Object.defineProperty(CanvasRenderingContext2D.prototype, 'shadowBlur', {
+    configurable: true,
+    get() { return d.get.call(this); },
+    set(v) { d.set.call(this, (v || 0) * NEON); },
+  });
+})();
 
 function spacedText(c, text, x, y, spacing, align) {
   const chars = [...String(text)];
@@ -1108,6 +1127,7 @@ function render() {
   const W = 1080, H = parseInt(S.format, 10);
   if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
   const P = palette();
+  NEON = S.neon ? S.neonGlow / 100 : 0;
   ctx.clearRect(0, 0, W, H);
   ({ spotlight: renderSpotlight, leaderboard: renderLeaderboard, cta: renderCta, pr: renderPr })[S.template](W, H, P);
   drawVignette(W, H);
@@ -1124,9 +1144,9 @@ const textFields = ['headerLeft', 'hdrLabel', 'hdrValue', 'program', 'handle',
   'lbCta', 'lbSub1', 'lbSub2',
   'ctaHeadline', 'ctaSub', 'ctaNote', 'ctaChip', 'ctaBarLabel',
   'prTitle', 'prName', 'prMove', 'prValue', 'prDelta', 'prBarLabel'];
-const rangeFields = [['centerFill'], ['glitch'], ['photoZoom'], ['photoPan'],
+const rangeFields = [['centerFill'], ['glitch'], ['neonGlow', 'neonGlowOut'], ['photoZoom'], ['photoPan'],
   ['spotPct', 'spotPctOut'], ['ctaPct', 'ctaPctOut'], ['prPct', 'prPctOut']];
-const checkFields = ['showHdr', 't1badge', 'showHandle', 'duotone'];
+const checkFields = ['showHdr', 't1badge', 'showHandle', 'duotone', 'neon'];
 
 function syncControlsFromState() {
   document.body.dataset.template = S.template;
@@ -1264,7 +1284,6 @@ if (document.fonts && document.fonts.ready) {
 </script>
 
 <script>
-// register the service worker so the app installs to the Home Screen and runs offline
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", function () {
     navigator.serviceWorker.register("sw.js").catch(function () {});

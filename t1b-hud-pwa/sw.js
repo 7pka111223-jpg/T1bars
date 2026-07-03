@@ -1,5 +1,5 @@
 // T1B overlay app — offline cache
-const CACHE = "t1b-hud-v2";
+const CACHE = "t1b-hud-v3";
 const ASSETS = ["./", "./index.html"];
 
 self.addEventListener("install", function (e) {
