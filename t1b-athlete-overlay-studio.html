@@ -70,7 +70,7 @@
   .row > div { flex: 1; }
   input[type=range] { width: 100%; accent-color: var(--red); }
   input[type=color] { width: 46px; height: 32px; border: 1px solid #2c2c2c; border-radius: 5px; background: #0c0c0c; padding: 2px; cursor: pointer; }
-  .swatches { display: flex; gap: 8px; align-items: center; margin-top: 6px; }
+  .swatches { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 6px; }
   .swatch { width: 26px; height: 26px; border-radius: 5px; border: 1px solid #333; cursor: pointer; }
   .swatch:hover { border-color: #fff; }
   .check { display: flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 13px; color: #ccc; }
@@ -161,6 +161,7 @@
       <label class="f">Center fill (0 = transparent overlay)</label>
       <input type="range" id="centerFill" min="0" max="100" value="88">
       <div class="hint">At 0% the middle is fully transparent — perfect for layering over your own photo/video in the IG story editor.</div>
+      <div class="check"><input type="checkbox" id="showBar" checked><span>Show progress bar</span></div>
     </fieldset>
 
     <fieldset>
@@ -342,15 +343,34 @@
     </div>
 
     <fieldset>
+      <legend>CUSTOM TEXT</legend>
+      <div class="check"><input type="checkbox" id="customShow"><span>Show custom text</span></div>
+      <label class="f">Text</label>
+      <input type="text" id="customText" value="YOUR TEXT">
+      <label class="f">Scale — <span id="customScaleOut">120</span>px</label>
+      <input type="range" id="customScale" min="24" max="320" value="120">
+      <label class="f">X position — <span id="customXOut">50</span>%</label>
+      <input type="range" id="customX" min="0" max="100" value="50">
+      <label class="f">Y position — <span id="customYOut">50</span>%</label>
+      <input type="range" id="customY" min="0" max="100" value="50">
+    </fieldset>
+
+    <fieldset>
       <legend>STYLE</legend>
       <label class="f">Accent color</label>
       <div class="swatches">
         <input type="color" id="accent" value="#cc0000">
         <div class="swatch" style="background:#cc0000" data-c="#cc0000" title="T1B Red"></div>
-        <div class="swatch" style="background:#00cc55" data-c="#00cc55" title="Green"></div>
-        <div class="swatch" style="background:#00b8cc" data-c="#00b8cc" title="Cyan"></div>
-        <div class="swatch" style="background:#cc8800" data-c="#cc8800" title="Amber"></div>
-        <div class="swatch" style="background:#8833cc" data-c="#8833cc" title="Purple"></div>
+        <div class="swatch" style="background:#ff0000" data-c="#ff0000" title="Pure Red"></div>
+        <div class="swatch" style="background:#990000" data-c="#990000" title="Deep Red"></div>
+        <div class="swatch" style="background:#ff0044" data-c="#ff0044" title="Crimson"></div>
+        <div class="swatch" style="background:#ff0099" data-c="#ff0099" title="Magenta"></div>
+        <div class="swatch" style="background:#ff6600" data-c="#ff6600" title="Orange"></div>
+        <div class="swatch" style="background:#ffcc00" data-c="#ffcc00" title="Yellow"></div>
+        <div class="swatch" style="background:#00e53c" data-c="#00e53c" title="Green"></div>
+        <div class="swatch" style="background:#00e5ff" data-c="#00e5ff" title="Cyan"></div>
+        <div class="swatch" style="background:#0066ff" data-c="#0066ff" title="Blue"></div>
+        <div class="swatch" style="background:#9500ff" data-c="#9500ff" title="Violet"></div>
       </div>
       <div class="check"><input type="checkbox" id="neon" checked><span>Neon text glow</span></div>
       <label class="f">Glow strength — <span id="neonGlowOut">100</span>%</label>
@@ -390,6 +410,12 @@ const DEFAULTS = {
   glitch: 45,
   neon: true,
   neonGlow: 100,
+  showBar: true,
+  customShow: false,
+  customText: 'YOUR TEXT',
+  customScale: 120,
+  customX: 50,
+  customY: 50,
   headerLeft: 'JULY REPORT',
   hdrLabel: 'PERIOD',
   hdrValue: 'JULY 2026',
@@ -473,14 +499,19 @@ function rgba(rgb, a) { return `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${a})`; }
 
 function palette() {
   const base = hexToRgb(S.accent);
+  // boost() normalizes the accent to full brightness first, so the derived
+  // glow/pale tones stay saturated in the accent's own hue instead of
+  // drifting toward red/grey (the old math was tuned only for the T1B red)
+  const boost = (rgb) => { const m = Math.max(rgb[0], rgb[1], rgb[2], 1); return rgb.map(c => Math.round(c * 255 / m)); };
+  const hot = boost(base), WHT = [255, 255, 255];
   return {
     accent:  rgba(base, 1),
-    bright:  rgba(mix(base, [255, 80, 80], .55), 1),
-    glowC:   rgba(mix(base, [255, 90, 90], .6), 1),
-    pale:    rgba(mix(base, [255, 225, 225], .78), 1),
-    paleDim: (a) => rgba(mix(base, [255, 210, 210], .72), a),
+    bright:  rgba(mix(hot, WHT, .25), 1),
+    glowC:   rgba(mix(hot, WHT, .3), 1),
+    pale:    rgba(mix(hot, WHT, .75), 1),
+    paleDim: (a) => rgba(mix(hot, WHT, .7), a),
     accentA: (a) => rgba(base, a),
-    brightA: (a) => rgba(mix(base, [255, 80, 80], .55), a),
+    brightA: (a) => rgba(mix(hot, WHT, .25), a),
   };
 }
 
@@ -896,6 +927,27 @@ function drawHandle(W, H, P) {
   ctx.restore();
 }
 
+/* ----- free-floating custom text layer ----- */
+function drawCustomText(W, H, P) {
+  if (!S.customShow || !S.customText) return;
+  ctx.save();
+  ctx.textBaseline = 'alphabetic';
+  ctx.textAlign = 'center';
+  ctx.font = `${S.customScale}px "Bebas Neue", Impact, sans-serif`;
+  const x = W * S.customX / 100, y = H * S.customY / 100;
+  ctx.shadowColor = P.glowC;
+  ctx.shadowBlur = 30;
+  ctx.fillStyle = P.accentA(0.55);
+  ctx.fillText(S.customText, x - 3, y + 3);
+  ctx.shadowBlur = 20;
+  ctx.fillStyle = P.paleDim(0.92);
+  ctx.fillText(S.customText, x, y);
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = P.accentA(0.65);
+  ctx.strokeText(S.customText, x, y);
+  ctx.restore();
+}
+
 function drawVignette(W, H) {
   const g = ctx.createRadialGradient(W / 2, H / 2, H * 0.35, W / 2, H / 2, H * 0.75);
   g.addColorStop(0, 'rgba(0,0,0,0)');
@@ -956,7 +1008,7 @@ function renderSpotlight(W, H, P) {
   ctx.restore();
 
   const barY = H - 366;
-  drawBar(W, H, P, S.spotBarLabel, S.spotPct, barY);
+  if (S.showBar) drawBar(W, H, P, S.spotBarLabel, S.spotPct, barY);
   drawTitleBlock(W, H, P, S.spotName, S.spotCategory, S.spotSub, barY, { strongSub1: true });
   drawHandle(W, H, P);
 }
@@ -1035,7 +1087,7 @@ function renderLeaderboard(W, H, P) {
   });
 
   const barY = H - 366;
-  drawBar(W, H, P, 'BOARD SYNC', 100, barY);
+  if (S.showBar) drawBar(W, H, P, 'BOARD SYNC', 100, barY);
   drawTitleBlock(W, H, P, S.lbCta, S.lbSub1, S.lbSub2, barY, { maxSize: 120 });
   drawHandle(W, H, P);
 }
@@ -1048,7 +1100,7 @@ function renderCta(W, H, P) {
 
   const x0 = SIDE + 70, x1 = W - 96;
   const barY = H - 560;
-  drawBar(W, H, P, S.ctaBarLabel, S.ctaPct, barY);
+  if (S.showBar) drawBar(W, H, P, S.ctaBarLabel, S.ctaPct, barY);
   const ty = drawTitleBlock(W, H, P, S.ctaHeadline, S.ctaSub, S.ctaNote, barY, { maxSize: 150 });
 
   // action chip (looks like a button)
@@ -1081,7 +1133,7 @@ function renderPr(W, H, P) {
 
   const x0 = SIDE + 70, x1 = W - 96;
   const barY = H - 460;
-  drawBar(W, H, P, S.prBarLabel, S.prPct, barY);
+  if (S.showBar) drawBar(W, H, P, S.prBarLabel, S.prPct, barY);
 
   // glitched alert title
   ctx.save();
@@ -1130,6 +1182,7 @@ function render() {
   NEON = S.neon ? S.neonGlow / 100 : 0;
   ctx.clearRect(0, 0, W, H);
   ({ spotlight: renderSpotlight, leaderboard: renderLeaderboard, cta: renderCta, pr: renderPr })[S.template](W, H, P);
+  drawCustomText(W, H, P);
   drawVignette(W, H);
 }
 
@@ -1143,10 +1196,11 @@ const textFields = ['headerLeft', 'hdrLabel', 'hdrValue', 'program', 'handle',
   'lbCategory', 'lb1Name', 'lb1Score', 'lb2Name', 'lb2Score', 'lb3Name', 'lb3Score',
   'lbCta', 'lbSub1', 'lbSub2',
   'ctaHeadline', 'ctaSub', 'ctaNote', 'ctaChip', 'ctaBarLabel',
-  'prTitle', 'prName', 'prMove', 'prValue', 'prDelta', 'prBarLabel'];
+  'prTitle', 'prName', 'prMove', 'prValue', 'prDelta', 'prBarLabel', 'customText'];
 const rangeFields = [['centerFill'], ['glitch'], ['neonGlow', 'neonGlowOut'], ['photoZoom'], ['photoPan'],
-  ['spotPct', 'spotPctOut'], ['ctaPct', 'ctaPctOut'], ['prPct', 'prPctOut']];
-const checkFields = ['showHdr', 't1badge', 'showHandle', 'duotone', 'neon'];
+  ['spotPct', 'spotPctOut'], ['ctaPct', 'ctaPctOut'], ['prPct', 'prPctOut'],
+  ['customScale', 'customScaleOut'], ['customX', 'customXOut'], ['customY', 'customYOut']];
+const checkFields = ['showHdr', 't1badge', 'showHandle', 'duotone', 'neon', 'showBar', 'customShow'];
 
 function syncControlsFromState() {
   document.body.dataset.template = S.template;

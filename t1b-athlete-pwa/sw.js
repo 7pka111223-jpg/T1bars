@@ -1,5 +1,5 @@
 // T1B overlay app — offline cache
-const CACHE = "t1b-athlete-v2";
+const CACHE = "t1b-athlete-v3";
 const ASSETS = ["./", "./index.html"];
 
 self.addEventListener("install", function (e) {

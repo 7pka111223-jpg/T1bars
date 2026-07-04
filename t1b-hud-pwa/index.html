@@ -88,7 +88,7 @@
   .row > div { flex: 1; }
   input[type=range] { width: 100%; accent-color: var(--red); }
   input[type=color] { width: 46px; height: 32px; border: 1px solid #2c2c2c; border-radius: 5px; background: #0c0c0c; padding: 2px; cursor: pointer; }
-  .swatches { display: flex; gap: 8px; align-items: center; margin-top: 6px; }
+  .swatches { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 6px; }
   .swatch { width: 26px; height: 26px; border-radius: 5px; border: 1px solid #333; cursor: pointer; }
   .swatch:hover { border-color: #fff; }
   .check { display: flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 13px; color: #ccc; }
@@ -234,6 +234,7 @@
     <fieldset>
       <legend>FOOTER</legend>
       <div class="check"><input type="checkbox" id="showFooter" checked><span>Show footer</span></div>
+      <div class="check"><input type="checkbox" id="showBar" checked><span>Show progress bar</span></div>
       <label class="f">Sync label</label>
       <input type="text" id="syncLabel" value="HUD SYSTEM SYNC">
       <label class="f">Progress — <span id="pctOut">60</span>%</label>
@@ -247,15 +248,34 @@
     </fieldset>
 
     <fieldset>
+      <legend>CUSTOM TEXT</legend>
+      <div class="check"><input type="checkbox" id="customShow"><span>Show custom text</span></div>
+      <label class="f">Text</label>
+      <input type="text" id="customText" value="YOUR TEXT">
+      <label class="f">Scale — <span id="customScaleOut">120</span>px</label>
+      <input type="range" id="customScale" min="24" max="320" value="120">
+      <label class="f">X position — <span id="customXOut">50</span>%</label>
+      <input type="range" id="customX" min="0" max="100" value="50">
+      <label class="f">Y position — <span id="customYOut">50</span>%</label>
+      <input type="range" id="customY" min="0" max="100" value="50">
+    </fieldset>
+
+    <fieldset>
       <legend>STYLE</legend>
       <label class="f">Accent color</label>
       <div class="swatches">
         <input type="color" id="accent" value="#cc0000">
         <div class="swatch" style="background:#cc0000" data-c="#cc0000" title="T1B Red"></div>
-        <div class="swatch" style="background:#00cc55" data-c="#00cc55" title="Green"></div>
-        <div class="swatch" style="background:#00b8cc" data-c="#00b8cc" title="Cyan"></div>
-        <div class="swatch" style="background:#cc8800" data-c="#cc8800" title="Amber"></div>
-        <div class="swatch" style="background:#8833cc" data-c="#8833cc" title="Purple"></div>
+        <div class="swatch" style="background:#ff0000" data-c="#ff0000" title="Pure Red"></div>
+        <div class="swatch" style="background:#990000" data-c="#990000" title="Deep Red"></div>
+        <div class="swatch" style="background:#ff0044" data-c="#ff0044" title="Crimson"></div>
+        <div class="swatch" style="background:#ff0099" data-c="#ff0099" title="Magenta"></div>
+        <div class="swatch" style="background:#ff6600" data-c="#ff6600" title="Orange"></div>
+        <div class="swatch" style="background:#ffcc00" data-c="#ffcc00" title="Yellow"></div>
+        <div class="swatch" style="background:#00e53c" data-c="#00e53c" title="Green"></div>
+        <div class="swatch" style="background:#00e5ff" data-c="#00e5ff" title="Cyan"></div>
+        <div class="swatch" style="background:#0066ff" data-c="#0066ff" title="Blue"></div>
+        <div class="swatch" style="background:#9500ff" data-c="#9500ff" title="Violet"></div>
       </div>
       <div class="check"><input type="checkbox" id="neon" checked><span>Neon text glow</span></div>
       <label class="f">Glow strength — <span id="neonGlowOut">100</span>%</label>
@@ -289,8 +309,14 @@ const DEFAULTS = {
   showHr: true,
   showPanels: true,
   showFooter: true,
+  showBar: true,
   neon: true,
   neonGlow: 100,
+  customShow: false,
+  customText: 'YOUR TEXT',
+  customScale: 120,
+  customX: 50,
+  customY: 50,
   program: 'STRONG BASE',
   activeIcon: 2,
   p1Label: 'CURRENT SET',
@@ -344,14 +370,19 @@ function rgba(rgb, a) { return `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${a})`; }
 
 function palette() {
   const base = hexToRgb(S.accent);
+  // boost() normalizes the accent to full brightness first, so the derived
+  // glow/pale tones stay saturated in the accent's own hue instead of
+  // drifting toward red/grey (the old math was tuned only for the T1B red)
+  const boost = (rgb) => { const m = Math.max(rgb[0], rgb[1], rgb[2], 1); return rgb.map(c => Math.round(c * 255 / m)); };
+  const hot = boost(base), WHT = [255, 255, 255];
   return {
-    accent:  rgba(base, 1),                       // #CC0000
-    bright:  rgba(mix(base, [255, 80, 80], .55), 1),  // ~#FF4444 glow tone
-    glowC:   rgba(mix(base, [255, 90, 90], .6), 1),
-    pale:    rgba(mix(base, [255, 225, 225], .78), 1), // pale pink text
-    paleDim: (a) => rgba(mix(base, [255, 210, 210], .72), a),
+    accent:  rgba(base, 1),                       // the picked color, as-is
+    bright:  rgba(mix(hot, WHT, .25), 1),         // hot glow tone (~#FF4444 for T1B red)
+    glowC:   rgba(mix(hot, WHT, .3), 1),
+    pale:    rgba(mix(hot, WHT, .75), 1),         // pale tinted text
+    paleDim: (a) => rgba(mix(hot, WHT, .7), a),
     accentA: (a) => rgba(base, a),
-    brightA: (a) => rgba(mix(base, [255, 80, 80], .55), a),
+    brightA: (a) => rgba(mix(hot, WHT, .25), a),
   };
 }
 
@@ -417,6 +448,7 @@ function render() {
   drawSidebar(W, H, P);
   if (S.showPanels) drawPanels(W, H, P);
   if (S.showFooter) drawFooter(W, H, P);
+  drawCustomText(W, H, P);
   drawVignette(W, H);
 }
 
@@ -723,6 +755,7 @@ function drawFooter(W, H, P) {
   ctx.save();
   ctx.textBaseline = 'alphabetic';
 
+  if (S.showBar) {
   // sync label (faded)
   ctx.font = '700 30px "Outfit", sans-serif';
   ctx.fillStyle = P.paleDim(0.55);
@@ -762,6 +795,7 @@ function drawFooter(W, H, P) {
       ctx.restore();
     }
   }
+  } // end showBar
 
   // exercise title — big layered display text
   const title = S.exercise || '';
@@ -788,6 +822,27 @@ function drawFooter(W, H, P) {
   ctx.restore();
 }
 
+/* ----- free-floating custom text layer ----- */
+function drawCustomText(W, H, P) {
+  if (!S.customShow || !S.customText) return;
+  ctx.save();
+  ctx.textBaseline = 'alphabetic';
+  ctx.textAlign = 'center';
+  ctx.font = `${S.customScale}px "Bebas Neue", Impact, sans-serif`;
+  const x = W * S.customX / 100, y = H * S.customY / 100;
+  ctx.shadowColor = P.glowC;
+  ctx.shadowBlur = 30;
+  ctx.fillStyle = P.accentA(0.55);
+  ctx.fillText(S.customText, x - 3, y + 3);
+  ctx.shadowBlur = 20;
+  ctx.fillStyle = P.paleDim(0.92);
+  ctx.fillText(S.customText, x, y);
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = P.accentA(0.65);
+  ctx.strokeText(S.customText, x, y);
+  ctx.restore();
+}
+
 /* ----- subtle CRT vignette over everything ----- */
 function drawVignette(W, H) {
   const g = ctx.createRadialGradient(W / 2, H / 2, H * 0.35, W / 2, H / 2, H * 0.75);
@@ -804,7 +859,7 @@ function drawVignette(W, H) {
 
 const el = id => document.getElementById(id);
 const textFields = ['day', 'hrLabel', 'hrValue', 'program', 'p1Label', 'p1Value', 'p1Total',
-  'p2Label', 'p2Value', 'p2Unit', 'syncLabel', 'exercise', 'sub1', 'sub2'];
+  'p2Label', 'p2Value', 'p2Unit', 'syncLabel', 'exercise', 'sub1', 'sub2', 'customText'];
 
 function syncControlsFromState() {
   el('format').value = S.format;
@@ -813,6 +868,12 @@ function syncControlsFromState() {
   el('showHr').checked = S.showHr;
   el('showPanels').checked = S.showPanels;
   el('showFooter').checked = S.showFooter;
+  el('showBar').checked = S.showBar;
+  el('customShow').checked = S.customShow;
+  [['customScale', 'customScaleOut'], ['customX', 'customXOut'], ['customY', 'customYOut']].forEach(([f, out]) => {
+    el(f).value = S[f];
+    el(out).textContent = S[f];
+  });
   el('pct').value = S.pct;
   el('pctOut').textContent = S.pct;
   el('accent').value = S.accent;
@@ -832,6 +893,10 @@ el('centerFill').addEventListener('input', e => { S.centerFill = +e.target.value
 el('showHr').addEventListener('change', e => { S.showHr = e.target.checked; update(); });
 el('showPanels').addEventListener('change', e => { S.showPanels = e.target.checked; update(); });
 el('showFooter').addEventListener('change', e => { S.showFooter = e.target.checked; update(); });
+el('showBar').addEventListener('change', e => { S.showBar = e.target.checked; update(); });
+el('customShow').addEventListener('change', e => { S.customShow = e.target.checked; update(); });
+[['customScale', 'customScaleOut'], ['customX', 'customXOut'], ['customY', 'customYOut']].forEach(([f, out]) =>
+  el(f).addEventListener('input', e => { S[f] = +e.target.value; el(out).textContent = S[f]; update(); }));
 el('pct').addEventListener('input', e => { S.pct = +e.target.value; el('pctOut').textContent = S.pct; update(); });
 el('accent').addEventListener('input', e => { S.accent = e.target.value; update(); });
 el('glitch').addEventListener('input', e => { S.glitch = +e.target.value; update(); });
