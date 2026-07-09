@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<title>T1 Carousel Builder</title>
+<meta name="description" content="Build TripleOneBars paper-and-doodle Instagram carousels with schematics, text, and image backgrounds.">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="T1 Builder">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;0,800;1,600;1,700&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand"><span class="logo">✕</span> T1 <b>Carousel Builder</b></div>
+  <div class="slides-nav">
+    <button id="slidePrev" title="Previous slide">‹</button>
+    <span id="slideLabel">1 / 1</span>
+    <button id="slideNext" title="Next slide">›</button>
+    <button id="slideAdd" title="Add slide">+ slide</button>
+    <button id="slideDup" title="Duplicate slide">⧉</button>
+    <button id="slideDel" title="Delete slide" class="danger">🗑</button>
+  </div>
+  <div class="top-actions">
+    <button id="installBtn" class="hidden">Install app</button>
+    <button id="exportBtn" class="primary">Export PNG</button>
+    <button id="exportAllBtn">Export all</button>
+  </div>
+</header>
+
+<main class="workspace">
+  <section class="stage-area">
+    <div class="stage-scaler" id="stageScaler">
+      <div class="stage" id="stage">
+        <div class="bg-layer" id="bgLayer"></div>
+        <div class="layers" id="layersHost"></div>
+      </div>
+    </div>
+    <div class="filmstrip" id="filmstrip"></div>
+  </section>
+
+  <aside class="panel" id="panel">
+    <div class="panel-tabs">
+      <button data-tab="design" class="active">Design</button>
+      <button data-tab="layers">Layers</button>
+      <button data-tab="props">Properties</button>
+    </div>
+
+    <div class="tab" data-tab="design">
+      <h3>Background</h3>
+      <div class="row">
+        <label>Tone</label>
+        <div class="seg" id="toneSeg">
+          <button data-tone="black">black</button>
+          <button data-tone="bone" class="active">bone</button>
+          <button data-tone="concrete">concrete</button>
+        </div>
+      </div>
+      <div class="row">
+        <label>Image</label>
+        <input type="file" id="bgImageInput" accept="image/*">
+      </div>
+      <div class="row">
+        <label><input type="checkbox" id="duotoneChk"> Duotone (B&amp;W + red)</label>
+      </div>
+      <div class="row">
+        <label>Image dim</label>
+        <input type="range" id="bgDim" min="0" max="0.8" step="0.05" value="0">
+      </div>
+      <button id="bgClear" class="wide subtle">Remove image</button>
+
+      <h3>Add content</h3>
+      <div class="row">
+        <label>Schematic</label>
+        <select id="schematicSelect"></select>
+      </div>
+      <button id="addSchematic" class="wide">+ Add schematic</button>
+      <button id="addText" class="wide">+ Add text</button>
+    </div>
+
+    <div class="tab hidden" data-tab="layers">
+      <h3>Layers <span class="hint">(top = front)</span></h3>
+      <ul class="layer-list" id="layerList"></ul>
+    </div>
+
+    <div class="tab hidden" data-tab="props">
+      <div id="propsEmpty" class="muted">Select a layer to edit it.</div>
+      <div id="propsBody" class="hidden">
+        <div id="textProps" class="hidden">
+          <h3>Text</h3>
+          <textarea id="pText" rows="3" placeholder="Type text…"></textarea>
+          <div class="row"><label>Font</label>
+            <select id="pFont">
+              <option value="Poppins">Poppins</option>
+              <option value="Caveat">Caveat (hand)</option>
+              <option value="Georgia">Georgia</option>
+              <option value="Arial">Arial</option>
+              <option value="Courier New">Courier</option>
+            </select>
+          </div>
+          <div class="row"><label>Format</label>
+            <div class="seg">
+              <button id="pBold"><b>B</b></button>
+              <button id="pItalic"><i>I</i></button>
+              <button id="pUnderline"><u>U</u></button>
+            </div>
+          </div>
+          <div class="row"><label>Align</label>
+            <div class="seg" id="pAlign">
+              <button data-align="left">L</button>
+              <button data-align="center" class="active">C</button>
+              <button data-align="right">R</button>
+            </div>
+          </div>
+        </div>
+        <div id="schemProps" class="hidden">
+          <h3>Schematic</h3>
+          <div class="row"><label>Accent</label><input type="color" id="pAccent" value="#E10600"></div>
+        </div>
+        <h3>Transform</h3>
+        <div class="row"><label>X <span id="pXv"></span></label><input type="range" id="pX" min="0" max="1080" step="1"></div>
+        <div class="row"><label>Y <span id="pYv"></span></label><input type="range" id="pY" min="0" max="1350" step="1"></div>
+        <div class="row"><label>Scale <span id="pScaleV"></span></label><input type="range" id="pScale" min="0.1" max="4" step="0.02"></div>
+        <div class="row"><label>Rotation <span id="pRotV"></span></label><input type="range" id="pRot" min="-180" max="180" step="1"></div>
+        <div class="row"><label>Color</label><input type="color" id="pColor" value="#000000"></div>
+        <div class="row btns">
+          <button id="pDupe">Duplicate</button>
+          <button id="pFront">Bring front</button>
+          <button id="pDelete" class="danger">Delete</button>
+        </div>
+      </div>
+    </div>
+  </aside>
+</main>
+
+<div id="toast" class="toast hidden"></div>
+
+<script src="schematics.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
