@@ -1,9 +1,11 @@
 /* T1 Carousel Builder service worker — offline app shell + runtime font cache. */
-const VERSION = 'v2';
+const VERSION = 'v3';
 const SHELL = 't1-shell-' + VERSION;
 const RUNTIME = 't1-runtime-' + VERSION;
+// Stock photos are NOT precached (1.4MB) — the same-origin fetch handler caches
+// them on first use, so they still work offline after that.
 const ASSETS = [
-  './', 'index.html', 'styles.css', 'app.js', 'schematics.js', 'manifest.webmanifest',
+  './', 'index.html', 'styles.css', 'app.js', 'schematics.js', 'photos.js', 'manifest.webmanifest',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png'
 ];
 

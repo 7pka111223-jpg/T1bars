@@ -96,6 +96,78 @@ window.SCHEMATICS = {
   "h": 270.0,
   "svg": "<svg class=\"schematic\" viewBox=\"0 0 220 270\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"4\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M20 20 H200\"/><path d=\"M70 20 V70 M130 20 V70\"/><circle cx=\"70\" cy=\"86\" r=\"18\" stroke=\"var(--red)\"/><circle cx=\"130\" cy=\"86\" r=\"18\" stroke=\"var(--red)\"/><path d=\"M70 104 C 74 150 92 150 100 150 M130 104 C 126 150 108 150 100 150\"/><circle cx=\"100\" cy=\"140\" r=\"13\"/><path d=\"M100 153 V206 M100 206 L84 250 M100 206 L116 250\"/></svg>"
  },
+ "handstand": {
+  "label": "Handstand",
+  "category": "calisthenics",
+  "size": 30,
+  "w": 220.0,
+  "h": 232.0,
+  "svg": "<svg class=\"schematic\" viewBox=\"0 0 220 232\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"4\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><line x1=\"20\" y1=\"218\" x2=\"200\" y2=\"218\"/><path d=\"M90 212 L96 148 M130 212 L124 148\"/><circle cx=\"110\" cy=\"180\" r=\"10\"/><path d=\"M110 148 V62\"/><path d=\"M110 62 L90 14 M110 62 L130 12\"/><circle cx=\"90\" cy=\"212\" r=\"6\" stroke=\"var(--red)\"/><circle cx=\"130\" cy=\"212\" r=\"6\" stroke=\"var(--red)\"/></svg>"
+ },
+ "front-lever": {
+  "label": "Front lever",
+  "category": "calisthenics",
+  "size": 38,
+  "w": 260.0,
+  "h": 140.0,
+  "svg": "<svg class=\"schematic\" viewBox=\"0 0 260 140\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"4\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M20 28 H240\"/><path d=\"M96 28 L104 84 M136 28 L120 86\"/><circle cx=\"88\" cy=\"92\" r=\"12\"/><path d=\"M100 92 L230 96\"/><path d=\"M110 116 H220\" stroke=\"var(--red)\" stroke-dasharray=\"10 10\"/></svg>"
+ },
+ "back-lever": {
+  "label": "Back lever",
+  "category": "calisthenics",
+  "size": 38,
+  "w": 270.0,
+  "h": 135.0,
+  "svg": "<svg class=\"schematic\" viewBox=\"0 0 270 135\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"4\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M20 28 H240\"/><path d=\"M104 28 L112 82 M140 28 L128 84\"/><path d=\"M108 90 L232 86\"/><circle cx=\"242\" cy=\"84\" r=\"12\"/><path d=\"M110 110 H220\" stroke=\"var(--red)\" stroke-dasharray=\"10 10\"/></svg>"
+ },
+ "planche": {
+  "label": "Planche",
+  "category": "calisthenics",
+  "size": 36,
+  "w": 240.0,
+  "h": 170.0,
+  "svg": "<svg class=\"schematic\" viewBox=\"0 0 240 170\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"4\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><line x1=\"10\" y1=\"150\" x2=\"230\" y2=\"150\"/><path d=\"M112 150 V96\"/><circle cx=\"146\" cy=\"82\" r=\"12\"/><path d=\"M134 88 L36 104 M36 104 L14 108\"/><circle cx=\"112\" cy=\"150\" r=\"5\" stroke=\"var(--red)\"/></svg>"
+ },
+ "human-flag": {
+  "label": "Human flag",
+  "category": "calisthenics",
+  "size": 36,
+  "w": 280.0,
+  "h": 220.0,
+  "svg": "<svg class=\"schematic\" viewBox=\"0 0 280 220\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"4\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M44 10 V210\"/><circle cx=\"98\" cy=\"38\" r=\"11\"/><path d=\"M44 34 L86 46\"/><path d=\"M44 112 L106 60\"/><path d=\"M106 54 L216 82\"/><path d=\"M216 82 L258 88 M216 82 L252 102\"/><circle cx=\"44\" cy=\"34\" r=\"6\" stroke=\"var(--red)\"/><circle cx=\"44\" cy=\"112\" r=\"6\" stroke=\"var(--red)\"/></svg>"
+ },
+ "l-sit": {
+  "label": "L-sit",
+  "category": "calisthenics",
+  "size": 34,
+  "w": 250.0,
+  "h": 190.0,
+  "svg": "<svg class=\"schematic\" viewBox=\"0 0 250 190\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"4\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><line x1=\"20\" y1=\"168\" x2=\"230\" y2=\"168\"/><path d=\"M96 168 V108\"/><circle cx=\"96\" cy=\"86\" r=\"12\"/><path d=\"M96 98 L104 140\"/><path d=\"M104 140 L190 136\"/><path d=\"M112 152 H182\" stroke=\"var(--red)\"/></svg>"
+ },
+ "pistol-squat": {
+  "label": "Pistol squat",
+  "category": "calisthenics",
+  "size": 32,
+  "w": 220.0,
+  "h": 210.0,
+  "svg": "<svg class=\"schematic\" viewBox=\"0 0 220 210\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"4\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><line x1=\"14\" y1=\"190\" x2=\"210\" y2=\"190\"/><circle cx=\"102\" cy=\"78\" r=\"12\"/><path d=\"M100 90 L92 138\"/><path d=\"M98 104 L150 112\"/><path d=\"M92 138 L74 164 L82 190\"/><path d=\"M92 138 L170 148\"/><path d=\"M170 148 L184 144\" stroke=\"var(--red)\"/></svg>"
+ },
+ "toes-to-bar": {
+  "label": "Toes to bar",
+  "category": "calisthenics",
+  "size": 34,
+  "w": 240.0,
+  "h": 150.0,
+  "svg": "<svg class=\"schematic\" viewBox=\"0 0 240 150\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"4\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M20 26 H220\"/><path d=\"M92 26 L100 70 M124 26 L116 70\"/><circle cx=\"108\" cy=\"88\" r=\"12\"/><path d=\"M108 100 V128\"/><path d=\"M108 128 L156 66 L148 34\"/><circle cx=\"148\" cy=\"30\" r=\"6\" stroke=\"var(--red)\"/></svg>"
+ },
+ "quote-bubble": {
+  "label": "Quote bubble",
+  "category": "explainer",
+  "size": 44,
+  "w": 250.0,
+  "h": 150.0,
+  "svg": "<svg class=\"schematic\" viewBox=\"0 0 250 150\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"4\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"10\" y=\"10\" width=\"220\" height=\"100\" rx=\"18\" stroke=\"var(--red)\" fill=\"#ffffff\"/><path d=\"M58 110 L48 140 L92 110\" stroke=\"var(--red)\" fill=\"#ffffff\"/></svg>"
+ },
  "timer-watch": {
   "label": "Timer watch",
   "category": "training",

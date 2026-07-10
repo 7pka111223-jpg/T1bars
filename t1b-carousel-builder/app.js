@@ -16,21 +16,29 @@ function newSlide(tone = 'bone') {
   return { bg: tone, image: null, duotone: false, dim: 0, layers: [] };
 }
 
-/* ---------- GETSTENIX starter template ---------- */
+/* ---------- Starter templates ---------- */
+const T = (text, o = {}) => ({
+  id: uid(), type: 'text', text, font: 'Poppins', size: 60, bold: true,
+  italic: false, underline: false, align: 'left', x: 540, y: 300,
+  scale: 1, rot: 0, color: '#ffffff', accent: RED, ...o
+});
+const S = (name, o = {}) => ({
+  id: uid(), type: 'schematic', name, size: window.SCHEMATICS[name].size,
+  x: 540, y: 900, scale: 1, rot: 0, color: '#141414', accent: RED, ...o
+});
+/* Stock-photo layer from the bundled manifest (photos.js). */
+const PH = (file, o = {}) => {
+  const m = (window.STOCK_PHOTOS || []).find(p => p.file === file) || { w: 900, h: 600 };
+  return { id: uid(), type: 'image', src: 'photos/' + file, natW: m.w, natH: m.h,
+    widthPct: 60, x: 540, y: 900, scale: 1, rot: 0, opacity: 1, duotone: true, color: '#000000', ...o };
+};
+const brandLayers = (tone, name = 'TRIPLEONEBARS') => [
+  T(name, { size: 26, x: 60 + name.length * 9.5, y: 92, color: tone === 'bone' ? '#86847F' : '#dddbd7' }),
+  T('✕', { size: 36, x: 1000, y: 92, color: RED, align: 'center' })
+];
+
 function makeTemplate() {
-  const T = (text, o = {}) => ({
-    id: uid(), type: 'text', text, font: 'Poppins', size: 60, bold: true,
-    italic: false, underline: false, align: 'left', x: 540, y: 300,
-    scale: 1, rot: 0, color: '#ffffff', accent: RED, ...o
-  });
-  const S = (name, o = {}) => ({
-    id: uid(), type: 'schematic', name, size: window.SCHEMATICS[name].size,
-    x: 540, y: 900, scale: 1, rot: 0, color: '#141414', accent: RED, ...o
-  });
-  const brand = tone => [
-    T('GETSTENIX', { size: 26, x: 165, y: 92, color: tone === 'bone' ? '#86847F' : '#dddbd7' }),
-    T('✕', { size: 36, x: 1000, y: 92, color: RED, align: 'center' })
-  ];
+  const brand = tone => brandLayers(tone, 'GETSTENIX');
   const s1 = { ...newSlide('concrete'), layers: [
     ...brand('concrete'),
     T('for years,\nthe fitness industry\nfollowed the *same approach.*', { y: 330, x: 545 }),
@@ -71,6 +79,86 @@ function makeTemplate() {
   ]};
   return { slides: [s1, s2, s3, s4, s5], current: 0 };
 }
+
+function makeTutorial() {
+  const b = tone => brandLayers(tone);
+  const s1 = { ...newSlide('black'), layers: [
+    ...b('black'),
+    S('muscleup', { x: 540, y: 480, size: 40, color: '#ffffff' }),
+    T('your first *muscle-up*\nin 6 weeks', { size: 84, y: 800, x: 495 }),
+    S('doodle-underline', { x: 420, y: 905, size: 30 })
+  ]};
+  const s2 = { ...newSlide('bone'), layers: [
+    ...b('bone'),
+    T('in 6 weeks you pull yourself\n*over the bar* in one clean rep.', { y: 300, x: 505, color: '#141414' }),
+    PH('bar-support-2.jpg', { y: 920, widthPct: 48 })
+  ]};
+  const step = (tone, num, title, body, schem) => ({ ...newSlide(tone), layers: [
+    ...b(tone),
+    T('*' + num + '*', { size: 120, y: 330, x: 155 }),
+    T(title, { size: 64, y: 470, x: 80 + title.length * 16, color: tone === 'bone' ? '#141414' : '#ffffff' }),
+    T(body, { size: 40, bold: false, y: 620, x: 470, color: tone === 'bone' ? '#141414' : '#ffffff' }),
+    S(schem, { x: 540, y: 1000, size: 40 })
+  ]});
+  const s3 = step('bone', '01', 'hang every day', 'hang for *30 seconds* a day so your\ngrip never quits before your back.', 'hang');
+  const s4 = step('concrete', '02', 'pull to your chest', 'row the bar to your *chest*, not your chin.\nthe muscle-up starts high.', 'pullup');
+  const s5 = step('bone', '03', 'own the dip', 'finish every rep with *3 slow dips*\nover the bar.', 'dips');
+  const s6 = { ...newSlide('black'), layers: [
+    ...b('black'),
+    T('want the full\n*6-week plan?*', { size: 84, y: 560, x: 400 }),
+    T('comment *BAR*', { size: 64, y: 780, x: 330 }),
+    S('doodle-arrow', { x: 760, y: 780, size: 13 })
+  ]};
+  return { slides: [s1, s2, s3, s4, s5, s6], current: 0 };
+}
+
+function makeWod() {
+  const b = tone => brandLayers(tone);
+  const s1 = { ...newSlide('bone'), layers: [
+    ...b('bone'),
+    T("today's workout:", { size: 88, y: 240, x: 450, color: '#141414' }),
+    T('AMRAP *15*', { size: 66, y: 360, x: 275, color: '#141414' }),
+    T('as many rounds as possible', { font: 'Caveat', size: 46, y: 358, x: 700, rot: -5, color: RED, bold: false }),
+    T('*6*  muscle-ups\n*9*  straight-bar dips\n*20*  push-ups', { size: 64, y: 640, x: 420, color: '#141414' }),
+    T("rest only when the form breaks.\ndon't chase the clock.", { size: 38, bold: false, y: 880, x: 380, color: '#141414' }),
+    S('timer-watch', { size: 24, x: 855, y: 1140 })
+  ]};
+  const s2 = { ...newSlide('black'), layers: [
+    ...b('black'),
+    PH('human-flag.jpg', { y: 560, widthPct: 80 }),
+    T('save this for your\n*next session.*', { size: 76, y: 1000, x: 400 }),
+    T('and send it to a training partner.', { size: 38, bold: false, y: 1140, x: 350, color: '#9a9894' }),
+    S('doodle-arrow', { x: 880, y: 1080, size: 13 })
+  ]};
+  return { slides: [s1, s2], current: 0 };
+}
+
+function makeMyth() {
+  const b = tone => brandLayers(tone);
+  const s1 = { ...newSlide('concrete'), layers: [
+    ...b('concrete'),
+    T('we often hear people say:', { size: 48, y: 300, x: 375 }),
+    S('quote-bubble', { size: 62, x: 540, y: 560 }),
+    T('"i don\'t have time\nto train."', { size: 56, y: 540, x: 540, color: '#141414', align: 'center' }),
+    T("and honestly,\nthey're not *wrong...*", { size: 48, y: 850, x: 330 })
+  ]};
+  const s2 = { ...newSlide('bone'), layers: [
+    ...b('bone'),
+    T('*15 minutes* a day beats\n2 hours once a week.', { size: 64, y: 340, x: 480, color: '#141414' }),
+    S('calendar-streak', { x: 400, y: 560, size: 40 }),
+    S('progress-up', { x: 810, y: 545, size: 20 }),
+    PH('plank-outdoor.jpg', { y: 900, widthPct: 74 }),
+    T('start with today. *link in bio.*', { size: 46, y: 1180, x: 385, color: '#141414' })
+  ]};
+  return { slides: [s1, s2], current: 0 };
+}
+
+const TEMPLATES = {
+  getstenix: { label: 'GETSTENIX story (5 slides)', make: makeTemplate },
+  tutorial: { label: 'Tutorial: first muscle-up (6 slides)', make: makeTutorial },
+  wod: { label: 'Workout of the day (2 slides)', make: makeWod },
+  myth: { label: 'Myth vs truth (2 slides)', make: makeMyth },
+};
 
 let project = load() || makeTemplate();
 let selId = null;
@@ -407,9 +495,30 @@ $('#fgImageInput').onchange = e => {
   r.readAsDataURL(f);
   e.target.value = '';
 };
+(function fillTemplates() {
+  const sel = $('#templateSelect');
+  for (const [key, t] of Object.entries(TEMPLATES)) {
+    const o = document.createElement('option');
+    o.value = key; o.textContent = t.label; sel.appendChild(o);
+  }
+})();
 $('#loadExample').onclick = () => {
-  if (!confirm('Replace the current project with the GETSTENIX example?')) return;
-  project = makeTemplate(); selId = null; render(); toast('GETSTENIX example loaded');
+  const t = TEMPLATES[$('#templateSelect').value];
+  if (!t) return;
+  if (!confirm(`Replace the current project with "${t.label}"?`)) return;
+  project = t.make(); selId = null; render(); toast(t.label + ' loaded');
+};
+(function fillPhotos() {
+  const sel = $('#photoSelect');
+  for (const p of (window.STOCK_PHOTOS || [])) {
+    const o = document.createElement('option');
+    o.value = p.file; o.textContent = p.label; sel.appendChild(o);
+  }
+})();
+$('#addPhoto').onclick = () => {
+  const file = $('#photoSelect').value; if (!file) return;
+  slide().layers.push(PH(file, { x: CANVAS_W / 2, y: CANVAS_H / 2, duotone: false }));
+  selId = slide().layers.at(-1).id; showTab('props'); render();
 };
 $('#pOpacity').oninput = e => { selected().opacity = +e.target.value; $('#pOpacityV').textContent = Math.round(e.target.value * 100) + '%'; renderStage(); save(); };
 $('#pImgDuotone').onchange = e => { selected().duotone = e.target.checked; renderStage(); save(); };
@@ -598,6 +707,8 @@ if ('serviceWorker' in navigator) window.addEventListener('load', () => navigato
 /* Deep link: #slide=N jumps to a slide; adding &export shows that slide's true
    export render full-page (also used for automated QA). */
 (async function init() {
+  const tm = location.hash.match(/template=([a-z]+)/);
+  if (tm && TEMPLATES[tm[1]]) project = TEMPLATES[tm[1]].make();
   const m = location.hash.match(/slide=(\d+)/);
   if (m) project.current = Math.min(project.slides.length - 1, Math.max(0, +m[1] - 1));
   render();

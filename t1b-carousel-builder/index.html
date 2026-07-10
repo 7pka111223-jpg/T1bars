@@ -86,8 +86,20 @@
       <button id="addImageBtn" class="wide">+ Add image (foreground)</button>
       <input type="file" id="fgImageInput" accept="image/*" class="hidden">
 
-      <h3>Template</h3>
-      <button id="loadExample" class="wide">Load GETSTENIX example</button>
+      <h3>Stock photos</h3>
+      <div class="row">
+        <label>Photo</label>
+        <select id="photoSelect"></select>
+      </div>
+      <button id="addPhoto" class="wide">+ Add stock photo</button>
+      <div class="hint">Athlete photos from Pexels (free license). Tip: turn on Duotone in Properties for the brand look.</div>
+
+      <h3>Templates</h3>
+      <div class="row">
+        <label>Template</label>
+        <select id="templateSelect"></select>
+      </div>
+      <button id="loadExample" class="wide">Load template</button>
     </div>
 
     <div class="tab hidden" data-tab="layers">
@@ -154,6 +166,7 @@
 <div id="toast" class="toast hidden"></div>
 
 <script src="schematics.js"></script>
+<script src="photos.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
