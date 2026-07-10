@@ -1,5 +1,5 @@
 /* T1 Carousel Builder service worker — offline app shell + runtime font cache. */
-const VERSION = 'v1';
+const VERSION = 'v2';
 const SHELL = 't1-shell-' + VERSION;
 const RUNTIME = 't1-runtime-' + VERSION;
 const ASSETS = [

@@ -15,7 +15,64 @@ const uid = () => Math.random().toString(36).slice(2, 9);
 function newSlide(tone = 'bone') {
   return { bg: tone, image: null, duotone: false, dim: 0, layers: [] };
 }
-let project = load() || { slides: [newSlide()], current: 0 };
+
+/* ---------- GETSTENIX starter template ---------- */
+function makeTemplate() {
+  const T = (text, o = {}) => ({
+    id: uid(), type: 'text', text, font: 'Poppins', size: 60, bold: true,
+    italic: false, underline: false, align: 'left', x: 540, y: 300,
+    scale: 1, rot: 0, color: '#ffffff', accent: RED, ...o
+  });
+  const S = (name, o = {}) => ({
+    id: uid(), type: 'schematic', name, size: window.SCHEMATICS[name].size,
+    x: 540, y: 900, scale: 1, rot: 0, color: '#141414', accent: RED, ...o
+  });
+  const brand = tone => [
+    T('GETSTENIX', { size: 26, x: 165, y: 92, color: tone === 'bone' ? '#86847F' : '#dddbd7' }),
+    T('✕', { size: 36, x: 1000, y: 92, color: RED, align: 'center' })
+  ];
+  const s1 = { ...newSlide('concrete'), layers: [
+    ...brand('concrete'),
+    T('for years,\nthe fitness industry\nfollowed the *same approach.*', { y: 330, x: 545 }),
+    T('build one program.\ngive it to everyone.', { y: 585, x: 390 }),
+    T('hoping it works.', { y: 700, x: 345, color: '#6f6d69' }),
+    T('BUT....', { size: 96, y: 850, x: 241 }),
+    S('program-doc', { x: 845, y: 1090 })
+  ]};
+  const s2 = { ...newSlide('concrete'), layers: [
+    ...brand('concrete'),
+    S('two-athletes-diverge', { x: 540, y: 430 }),
+    T('we kept asking ourselves:\nwhy do *two athletes*', { y: 810, x: 490 }),
+    S('doodle-underline', { x: 420, y: 895, size: 26 }),
+    T('following the same program\nget completely different results?', { y: 1010, x: 555, color: '#4d4b48' })
+  ]};
+  const s3 = { ...newSlide('concrete'), layers: [
+    ...brand('concrete'),
+    T('that question changed everything.\ninstead of asking the athlete to *adapt*\n*to the program...*', { size: 52, y: 300, x: 540 }),
+    T('we built a system that *adapts*\n*to the athlete.*', { size: 52, y: 540, x: 455 }),
+    T('and that idea\neventually became *getstenix.*', { size: 52, y: 720, x: 445 }),
+    S('adaptive-system', { size: 56, x: 540, y: 1070 })
+  ]};
+  const s4 = { ...newSlide('bone'), layers: [
+    ...brand('bone'),
+    T('maybe the *best* program\nisn\'t the one that\nworks for *everyone.*', { size: 56, y: 330, x: 420, color: '#141414' }),
+    T('maybe it\'s the one that\nworks for *you.*', { size: 56, y: 585, x: 410, color: '#141414' }),
+    S('doodle-squiggle', { x: 330, y: 672, size: 18 }),
+    S('program-fan', { size: 60, x: 540, y: 1030 })
+  ]};
+  const s5 = { ...newSlide('bone'), layers: [
+    ...brand('bone'),
+    T("today's workout:", { size: 88, y: 250, x: 450, color: '#141414' }),
+    T('AMRAP', { size: 66, y: 375, x: 205, color: RED }),
+    S('doodle-underline', { x: 205, y: 425, size: 22 }),
+    T('as many rounds as possible', { font: 'Caveat', size: 46, y: 372, x: 620, rot: -5, color: RED, bold: false }),
+    T("start a *15 minute* timer.\ncomplete the exercises in order.\nkeep going until the timer runs out.\ndon't sacrifice *form* to move faster.", { size: 40, bold: false, y: 590, x: 425, color: '#141414' }),
+    S('timer-watch', { size: 24, x: 855, y: 1150 })
+  ]};
+  return { slides: [s1, s2, s3, s4, s5], current: 0 };
+}
+
+let project = load() || makeTemplate();
 let selId = null;
 let grainURL = makeGrainTileURL();
 
@@ -29,7 +86,7 @@ function inkFor(tone) { return tone === 'bone' ? '#141414' : '#ffffff'; }
   for (const [name, s] of Object.entries(window.SCHEMATICS)) {
     (cats[s.category] ||= []).push([name, s.label]);
   }
-  const order = ['calisthenics', 'training', 'explainer'];
+  const order = ['calisthenics', 'training', 'doodle', 'explainer'];
   for (const cat of order) {
     if (!cats[cat]) continue;
     const g = document.createElement('optgroup');
@@ -82,7 +139,18 @@ function layerBox(l) {
     const w = (l.size / 100) * CANVAS_W;
     return { w, h: w * (s.h / s.w) };
   }
+  if (l.type === 'image') {
+    const w = (l.widthPct / 100) * CANVAS_W;
+    return { w, h: w * (l.natH / l.natW) };
+  }
   return null; // text auto-sizes
+}
+/* Inline accent markup: words wrapped in *asterisks* render in the layer's accent color. */
+function textHTML(l) {
+  const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return esc(l.text || ' ').split('*')
+    .map((seg, i) => i % 2 ? `<span style="color:${l.accent || RED}">${seg}</span>` : seg)
+    .join('');
 }
 function makeNode(l) {
   const n = document.createElement('div');
@@ -97,6 +165,19 @@ function makeNode(l) {
     n.style.color = l.color;
     n.style.setProperty('--red', l.accent);
     n.innerHTML = schematicSVG(l.name, l.color, l.accent);
+  } else if (l.type === 'image') {
+    const b = layerBox(l);
+    n.style.width = b.w + 'px'; n.style.height = b.h + 'px';
+    n.style.opacity = l.opacity ?? 1;
+    const img = document.createElement('img');
+    img.src = l.src; img.draggable = false;
+    img.style.cssText = `display:block;width:100%;height:100%;object-fit:cover;pointer-events:none;${l.duotone ? 'filter:grayscale(1) contrast(1.05);' : ''}`;
+    n.appendChild(img);
+    if (l.duotone) {
+      const tint = document.createElement('div');
+      tint.style.cssText = `position:absolute;inset:0;background:${RED};mix-blend-mode:multiply;opacity:.32;pointer-events:none;`;
+      n.appendChild(tint);
+    }
   } else {
     n.style.color = l.color;
     n.style.fontFamily = `'${l.font}',sans-serif`;
@@ -105,7 +186,7 @@ function makeNode(l) {
     n.style.fontStyle = l.italic ? 'italic' : 'normal';
     n.style.textDecoration = l.underline ? 'underline' : 'none';
     n.style.textAlign = l.align;
-    n.textContent = l.text || ' ';
+    n.innerHTML = textHTML(l);
   }
   return n;
 }
@@ -135,8 +216,10 @@ function renderLayerList() {
   [...slide().layers].reverse().forEach(l => {
     const li = document.createElement('li');
     li.className = l.id === selId ? 'sel' : '';
-    const label = l.type === 'text' ? ('“' + (l.text || '').slice(0, 18) + '”') : window.SCHEMATICS[l.name].label;
-    li.innerHTML = `<span class="name">${l.type === 'text' ? '🅣' : '◈'} ${label}</span>
+    const label = l.type === 'text' ? ('“' + (l.text || '').replace(/\*/g, '').slice(0, 18) + '”')
+      : l.type === 'image' ? 'Image' : window.SCHEMATICS[l.name].label;
+    const glyph = l.type === 'text' ? '🅣' : l.type === 'image' ? '🖼' : '◈';
+    li.innerHTML = `<span class="name">${glyph} ${label}</span>
       <button data-act="up">↑</button><button data-act="down">↓</button><button data-act="del">✕</button>`;
     li.onclick = e => {
       const act = e.target.dataset.act;
@@ -176,13 +259,20 @@ function renderProps() {
   $('#propsBody').classList.toggle('hidden', !l);
   if (!l) return;
   $('#textProps').classList.toggle('hidden', l.type !== 'text');
-  $('#schemProps').classList.toggle('hidden', l.type !== 'schematic');
+  $('#schemProps').classList.toggle('hidden', l.type === 'image'); // accent applies to schematics AND text
+  $('#imgProps').classList.toggle('hidden', l.type !== 'image');
+  $('#colorRow').classList.toggle('hidden', l.type === 'image');
   $('#pX').value = l.x; $('#pXv').textContent = Math.round(l.x);
   $('#pY').value = l.y; $('#pYv').textContent = Math.round(l.y);
   $('#pScale').value = l.scale; $('#pScaleV').textContent = l.scale.toFixed(2);
   $('#pRot').value = l.rot; $('#pRotV').textContent = l.rot + '°';
   $('#pColor').value = toHex(l.color);
-  if (l.type === 'schematic') $('#pAccent').value = toHex(l.accent);
+  if (l.type !== 'image') $('#pAccent').value = toHex(l.accent || RED);
+  if (l.type === 'image') {
+    $('#pOpacity').value = l.opacity ?? 1;
+    $('#pOpacityV').textContent = Math.round((l.opacity ?? 1) * 100) + '%';
+    $('#pImgDuotone').checked = !!l.duotone;
+  }
   if (l.type === 'text') {
     $('#pText').value = l.text; $('#pFont').value = l.font;
     $('#pBold').classList.toggle('active', l.bold);
@@ -211,9 +301,17 @@ function addSchematic(name) {
 function addText() {
   const tone = slide().bg;
   slide().layers.push({
-    id: uid(), type: 'text', text: 'your text\nin red', font: 'Poppins',
+    id: uid(), type: 'text', text: 'your text with a\n*red keyword*', font: 'Poppins',
     size: 72, bold: true, italic: false, underline: false, align: 'center',
-    x: CANVAS_W / 2, y: 360, scale: 1, rot: 0, color: inkFor(tone)
+    x: CANVAS_W / 2, y: 360, scale: 1, rot: 0, color: inkFor(tone), accent: RED
+  });
+  selId = slide().layers.at(-1).id; showTab('props'); render();
+}
+function addImage(src, natW, natH) {
+  slide().layers.push({
+    id: uid(), type: 'image', src, natW, natH, widthPct: 50,
+    x: CANVAS_W / 2, y: CANVAS_H / 2, scale: 1, rot: 0,
+    opacity: 1, duotone: false, color: '#000000'
   });
   selId = slide().layers.at(-1).id; showTab('props'); render();
 }
@@ -269,8 +367,12 @@ function currentScale() {
 }
 function fitStage() {
   const area = $('.stage-area'), scaler = $('#stageScaler'), stage = $('#stage');
+  const mobile = window.matchMedia('(max-width:820px)').matches;
   const availW = area.clientWidth - 32;
-  const availH = area.clientHeight - $('#filmstrip').offsetHeight - 40;
+  // On phones the page scrolls; size the canvas to ~55% of the viewport height so
+  // the panel below stays reachable.
+  const availH = mobile ? window.innerHeight * 0.55
+                        : area.clientHeight - $('#filmstrip').offsetHeight - 40;
   const sc = Math.min(availW / CANVAS_W, availH / CANVAS_H, 1);
   stage.style.transformOrigin = 'top left';
   stage.style.transform = `scale(${sc})`;
@@ -293,6 +395,24 @@ $('#bgImageInput').onchange = e => {
 };
 $('#addSchematic').onclick = () => addSchematic($('#schematicSelect').value);
 $('#addText').onclick = addText;
+$('#addImageBtn').onclick = () => $('#fgImageInput').click();
+$('#fgImageInput').onchange = e => {
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    const probe = new Image();
+    probe.onload = () => addImage(r.result, probe.naturalWidth, probe.naturalHeight);
+    probe.src = r.result;
+  };
+  r.readAsDataURL(f);
+  e.target.value = '';
+};
+$('#loadExample').onclick = () => {
+  if (!confirm('Replace the current project with the GETSTENIX example?')) return;
+  project = makeTemplate(); selId = null; render(); toast('GETSTENIX example loaded');
+};
+$('#pOpacity').oninput = e => { selected().opacity = +e.target.value; $('#pOpacityV').textContent = Math.round(e.target.value * 100) + '%'; renderStage(); save(); };
+$('#pImgDuotone').onchange = e => { selected().duotone = e.target.checked; renderStage(); save(); };
 
 $('#pX').oninput = e => { selected().x = +e.target.value; $('#pXv').textContent = e.target.value; renderStage(); save(); };
 $('#pY').oninput = e => { selected().y = +e.target.value; $('#pYv').textContent = e.target.value; renderStage(); save(); };
@@ -375,11 +495,17 @@ async function slideToCanvas(s) {
     if (s.duotone) duotone(ctx);
     if (s.dim > 0) { ctx.save(); ctx.globalAlpha = s.dim; ctx.fillStyle = '#000'; ctx.fillRect(0, 0, CANVAS_W, CANVAS_H); ctx.restore(); }
   }
-  // pre-rasterize schematics
+  // pre-rasterize schematics and image layers
   const imgs = {};
-  await Promise.all(s.layers.filter(l => l.type === 'schematic').map(async l => {
-    const svg = schematicSVG(l.name, l.color, l.accent);
-    imgs[l.id] = await loadImg('data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg));
+  await Promise.all(s.layers.map(async l => {
+    if (l.type === 'schematic') {
+      const svg = schematicSVG(l.name, l.color, l.accent);
+      imgs[l.id] = await loadImg('data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg));
+    } else if (l.type === 'image') {
+      let img = await loadImg(l.src);
+      if (l.duotone) img = duotoneImage(img);
+      imgs[l.id] = img;
+    }
   }));
   for (const l of s.layers) {
     ctx.save();
@@ -388,6 +514,11 @@ async function slideToCanvas(s) {
       const meta = window.SCHEMATICS[l.name];
       const w = (l.size / 100) * CANVAS_W, h = w * (meta.h / meta.w);
       ctx.drawImage(imgs[l.id], -w / 2, -h / 2, w, h);
+    } else if (l.type === 'image') {
+      const b = layerBox(l);
+      ctx.globalAlpha = l.opacity ?? 1;
+      ctx.drawImage(imgs[l.id], -b.w / 2, -b.h / 2, b.w, b.h);
+      ctx.globalAlpha = 1;
     } else {
       drawText(ctx, l);
     }
@@ -395,30 +526,46 @@ async function slideToCanvas(s) {
   }
   return cv;
 }
-function duotone(ctx) {
-  const d = ctx.getImageData(0, 0, CANVAS_W, CANVAS_H), a = d.data;
+function duotone(ctx) { duotoneCtx(ctx, CANVAS_W, CANVAS_H); }
+function duotoneCtx(ctx, w, h) {
+  const d = ctx.getImageData(0, 0, w, h), a = d.data;
   for (let i = 0; i < a.length; i += 4) {
     const lum = a[i] * .299 + a[i + 1] * .587 + a[i + 2] * .114;
     a[i] = lum * .7 + 225 * .3; a[i + 1] = lum * .7; a[i + 2] = lum * .7 + 6 * .3;
   }
   ctx.putImageData(d, 0, 0);
 }
+function duotoneImage(img) {
+  const c = document.createElement('canvas'); c.width = img.width; c.height = img.height;
+  const x = c.getContext('2d'); x.drawImage(img, 0, 0);
+  duotoneCtx(x, c.width, c.height);
+  return c;
+}
+/* Text draws per segment so *accent markup* exports exactly like the preview. */
+function parseSegs(line, base, accent) {
+  return line.split('*').map((t, i) => ({ t, c: i % 2 ? accent : base })).filter(s => s.t.length);
+}
 function drawText(ctx, l) {
   ctx.font = `${l.italic ? 'italic ' : ''}${l.bold ? '700' : '400'} ${l.size}px '${l.font}'`;
-  ctx.fillStyle = l.color; ctx.textBaseline = 'middle'; ctx.textAlign = l.align;
-  const lines = (l.text || '').split('\n');
+  ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
+  const accent = l.accent || RED;
   const lineH = l.size * 1.15;
-  const maxW = Math.max(...lines.map(t => ctx.measureText(t).width), 1);
-  const startY = -(lines.length * lineH) / 2 + lineH / 2;
-  const anchorX = l.align === 'left' ? -maxW / 2 : l.align === 'right' ? maxW / 2 : 0;
-  lines.forEach((t, i) => {
-    const y = startY + i * lineH;
-    ctx.fillText(t, anchorX, y);
-    if (l.underline) {
-      const w = ctx.measureText(t).width;
-      const x0 = l.align === 'center' ? -w / 2 : l.align === 'left' ? -maxW / 2 : maxW / 2 - w;
-      ctx.save(); ctx.strokeStyle = l.color; ctx.lineWidth = Math.max(2, l.size * .06);
-      ctx.beginPath(); ctx.moveTo(x0, y + l.size * .42); ctx.lineTo(x0 + w, y + l.size * .42); ctx.stroke(); ctx.restore();
+  const segLines = (l.text || '').split('\n').map(t => parseSegs(t, l.color, accent));
+  const widths = segLines.map(segs => segs.reduce((w, s) => w + ctx.measureText(s.t).width, 0));
+  const maxW = Math.max(...widths, 1);
+  const startY = -(segLines.length * lineH) / 2 + lineH / 2;
+  segLines.forEach((segs, i) => {
+    const y = startY + i * lineH, lw = widths[i];
+    let x = l.align === 'left' ? -maxW / 2 : l.align === 'right' ? maxW / 2 - lw : -lw / 2;
+    for (const s of segs) {
+      const w = ctx.measureText(s.t).width;
+      ctx.fillStyle = s.c;
+      ctx.fillText(s.t, x, y);
+      if (l.underline) {
+        ctx.save(); ctx.strokeStyle = s.c; ctx.lineWidth = Math.max(2, l.size * .06);
+        ctx.beginPath(); ctx.moveTo(x, y + l.size * .42); ctx.lineTo(x + w, y + l.size * .42); ctx.stroke(); ctx.restore();
+      }
+      x += w;
     }
   });
 }
@@ -448,4 +595,16 @@ window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferr
 $('#installBtn').onclick = async () => { if (!deferredPrompt) return; deferredPrompt.prompt(); await deferredPrompt.userChoice; deferredPrompt = null; $('#installBtn').classList.add('hidden'); };
 if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
 
-render();
+/* Deep link: #slide=N jumps to a slide; adding &export shows that slide's true
+   export render full-page (also used for automated QA). */
+(async function init() {
+  const m = location.hash.match(/slide=(\d+)/);
+  if (m) project.current = Math.min(project.slides.length - 1, Math.max(0, +m[1] - 1));
+  render();
+  if (/export/.test(location.hash)) {
+    await ensureFonts();
+    const cv = await slideToCanvas(slide());
+    cv.style.cssText = 'position:fixed;inset:0;width:100vw;height:auto;z-index:999;background:#222';
+    document.body.appendChild(cv);
+  }
+})();

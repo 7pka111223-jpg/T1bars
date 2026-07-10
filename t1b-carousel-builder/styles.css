@@ -118,9 +118,12 @@ textarea{resize:vertical;}
 }
 
 @media (max-width:820px){
-  .workspace{flex-direction:column;}
-  .panel{width:100%; flex:1 1 auto; border-left:0; border-top:1px solid var(--line); max-height:46vh;}
-  .stage-area{flex:0 0 auto; padding:10px;}
+  /* Phones: let the whole page scroll vertically — canvas on top, panel below. */
+  body{overflow-y:auto; overflow-x:hidden; height:auto; min-height:100dvh;}
+  .workspace{display:block; overflow:visible;} /* size to content so the page scrolls */
+  .panel{width:100%; display:block; border-left:0; border-top:1px solid var(--line); max-height:none;}
+  .tab{overflow:visible;}
+  .stage-area{flex:0 0 auto; padding:10px; overflow:visible;}
   .slides-nav{margin-left:0; order:3; width:100%; justify-content:center;}
   .top-actions{order:2;}
 }

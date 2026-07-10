@@ -83,6 +83,11 @@
       </div>
       <button id="addSchematic" class="wide">+ Add schematic</button>
       <button id="addText" class="wide">+ Add text</button>
+      <button id="addImageBtn" class="wide">+ Add image (foreground)</button>
+      <input type="file" id="fgImageInput" accept="image/*" class="hidden">
+
+      <h3>Template</h3>
+      <button id="loadExample" class="wide">Load GETSTENIX example</button>
     </div>
 
     <div class="tab hidden" data-tab="layers">
@@ -96,6 +101,7 @@
         <div id="textProps" class="hidden">
           <h3>Text</h3>
           <textarea id="pText" rows="3" placeholder="Type text…"></textarea>
+          <div class="hint" style="margin:4px 0 8px">Wrap words in *asterisks* to color them with the accent.</div>
           <div class="row"><label>Font</label>
             <select id="pFont">
               <option value="Poppins">Poppins</option>
@@ -121,15 +127,20 @@
           </div>
         </div>
         <div id="schemProps" class="hidden">
-          <h3>Schematic</h3>
+          <h3>Accent</h3>
           <div class="row"><label>Accent</label><input type="color" id="pAccent" value="#E10600"></div>
+        </div>
+        <div id="imgProps" class="hidden">
+          <h3>Image</h3>
+          <div class="row"><label>Opacity <span id="pOpacityV"></span></label><input type="range" id="pOpacity" min="0.05" max="1" step="0.05" value="1"></div>
+          <div class="row"><label><input type="checkbox" id="pImgDuotone"> Duotone (B&amp;W + red)</label></div>
         </div>
         <h3>Transform</h3>
         <div class="row"><label>X <span id="pXv"></span></label><input type="range" id="pX" min="0" max="1080" step="1"></div>
         <div class="row"><label>Y <span id="pYv"></span></label><input type="range" id="pY" min="0" max="1350" step="1"></div>
         <div class="row"><label>Scale <span id="pScaleV"></span></label><input type="range" id="pScale" min="0.1" max="4" step="0.02"></div>
         <div class="row"><label>Rotation <span id="pRotV"></span></label><input type="range" id="pRot" min="-180" max="180" step="1"></div>
-        <div class="row"><label>Color</label><input type="color" id="pColor" value="#000000"></div>
+        <div class="row" id="colorRow"><label>Color</label><input type="color" id="pColor" value="#000000"></div>
         <div class="row btns">
           <button id="pDupe">Duplicate</button>
           <button id="pFront">Bring front</button>

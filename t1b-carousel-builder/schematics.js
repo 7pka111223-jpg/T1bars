@@ -191,5 +191,37 @@ window.SCHEMATICS = {
   "w": 216.0,
   "h": 120.0,
   "svg": "<svg class=\"schematic\" viewBox=\"0 0 216 120\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"4\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M6 60 H60 L74 24 L92 96 L108 60 H150\" stroke=\"var(--red)\"/><path d=\"M150 60 H210\"/></svg>"
+ },
+ "doodle-underline": {
+  "label": "Doodle: underline",
+  "category": "doodle",
+  "size": 28,
+  "w": 300.0,
+  "h": 26.0,
+  "svg": "<svg class=\"schematic\" viewBox=\"0 0 300 26\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M6 16 C 60 6 120 24 180 13 S 280 9 296 18\" stroke=\"var(--red)\"/></svg>"
+ },
+ "doodle-circle": {
+  "label": "Doodle: circle",
+  "category": "doodle",
+  "size": 32,
+  "w": 340.0,
+  "h": 170.0,
+  "svg": "<svg class=\"schematic\" viewBox=\"0 0 340 170\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M46 88 C 44 30 300 18 316 84 C 330 148 60 160 20 96 C 8 74 20 60 40 54\" stroke=\"var(--red)\"/></svg>"
+ },
+ "doodle-arrow": {
+  "label": "Doodle: arrow",
+  "category": "doodle",
+  "size": 13,
+  "w": 140.0,
+  "h": 140.0,
+  "svg": "<svg class=\"schematic\" viewBox=\"0 0 140 140\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M14 22 C 48 8 104 30 112 84\" stroke=\"var(--red)\"/><path d=\"M96 72 L116 90 L90 98\" stroke=\"var(--red)\"/></svg>"
+ },
+ "doodle-squiggle": {
+  "label": "Doodle: squiggle",
+  "category": "doodle",
+  "size": 20,
+  "w": 220.0,
+  "h": 24.0,
+  "svg": "<svg class=\"schematic\" viewBox=\"0 0 220 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M4 12 Q 20 2 36 12 T 68 12 T 100 12 T 132 12 T 164 12 T 196 12 T 216 12\" stroke=\"var(--red)\"/></svg>"
  }
 };
